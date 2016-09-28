@@ -11,8 +11,15 @@ class SummonServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot() {
-        //
+    public function boot()
+    {
+        if ($this->app->runningInConsole()) {
+
+            $this->commands([
+                Console\SummonConsole::class,
+            ]);
+
+        }
     }
 
     /**
