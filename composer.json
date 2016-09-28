@@ -8,5 +8,8 @@
             "email": "Quezler@me.com"
         }
     ],
-    "require": {}
+    "require": {},
+    "require-dev": {
+        "laravel/framework": "^5.3"
+    }
 }
