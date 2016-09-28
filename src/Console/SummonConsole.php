@@ -96,5 +96,36 @@ class SummonConsole extends Command
 
         $this->line(''); // spacer
 
+        // update ArtisanServiceProvider pointer in summoned ConsoleSupportServiceProvider
+        $file = file_get_contents($console_provider_summon);
+        if (Str::contains($file, 'App\Providers\ArtisanServiceProvider')) {
+            $this->info('ConsoleSupportServiceProvider\'s ArtisanServiceProvider pointer has been updated.');
+        } else {
+            $this->comment('ConsoleSupportServiceProvider\'s ArtisanServiceProvider pointer has not yet been updated.');
+            $file = str_replace(
+                'Illuminate\Foundation\Providers\ArtisanServiceProvider',
+                'App\Providers\ArtisanServiceProvider',
+                $file
+            );
+            file_put_contents($console_provider_summon, $file);
+        }
+
+        // update ConsoleSupportServiceProvider pointer in config.app
+        $config_app = base_path('config/') . 'app.php';
+        $file = file_get_contents($config_app);
+        if (Str::contains($file, 'App\Providers\ConsoleSupportServiceProvider::class')) {
+            $this->info('config.app\'s ConsoleSupportServiceProvider pointer has been updated.');
+        } else {
+            $this->comment('config.app\'s ConsoleSupportServiceProvider pointer has not yet been updated.');
+            $file = str_replace(
+                'Illuminate\Foundation\Providers\ConsoleSupportServiceProvider::class',
+                'App\Providers\ConsoleSupportServiceProvider::class',
+                $file
+            );
+            file_put_contents($config_app, $file);
+        }
+
+        $this->line(''); // spacer
+
     }
 }
