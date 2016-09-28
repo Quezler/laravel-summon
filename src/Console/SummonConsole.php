@@ -40,7 +40,7 @@ class SummonConsole extends Command
      */
     public function handle()
     {
-        // possible locations of ArtisanServiceProvider
+        // possible locations of ConsoleSupportServiceProvider
         $console_provider_summon = base_path('app/Providers/')            . 'ConsoleSupportServiceProvider.php';
         $console_provider_vendor = base_path('vendor/laravel/framework/') . 'src/Illuminate/Foundation/Providers/ConsoleSupportServiceProvider.php';
 
@@ -126,6 +126,15 @@ class SummonConsole extends Command
         }
 
         $this->line(''); // spacer
+        $this->question("if you see this, you're good to go! (っ◕‿◕)っ");
+        $this->line(''); // spacer
 
+        return $this->summonableCommands($artisan_provider_summon);
     }
+
+    private function summonableCommands($file) {
+        preg_match_all("/use (.*Command);/", file_get_contents($file), $array);
+        dd($array[1]);
+    }
+
 }
