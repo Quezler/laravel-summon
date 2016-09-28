@@ -1,0 +1,12 @@
+{
+    "name": "quezler/laravel-summon",
+    "description": "Summon files within the Laravel 5 framework.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Patrick 'Quezler' Mounier",
+            "email": "Quezler@me.com"
+        }
+    ],
+    "require": {}
+}
