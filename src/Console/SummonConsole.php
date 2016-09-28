@@ -5,6 +5,7 @@ namespace Quezler\Laravel_Summon\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class SummonConsole extends Command
 {
@@ -62,5 +63,38 @@ class SummonConsole extends Command
 
             File::copy($artisan_provider_vendor, $artisan_provider_summon);
         }
+
+        $this->line(''); // spacer
+
+        // update namespace of summoned ConsoleSupportServiceProvider
+        $file = file_get_contents($console_provider_summon);
+        if (Str::contains($file, 'namespace App\Providers;')) {
+            $this->info('ConsoleSupportServiceProvider namespace has been updated.');
+        } else {
+            $this->comment('ConsoleSupportServiceProvider namespace has not yet been updated.');
+            $file = str_replace(
+                'namespace Illuminate\Foundation\Providers;',
+                'namespace App\Providers;',
+                $file
+            );
+            file_put_contents($console_provider_summon, $file);
+        }
+
+        // update namespace of summoned ArtisanServiceProvider
+        $file = file_get_contents($artisan_provider_summon);
+        if (Str::contains($file, 'namespace App\Providers;')) {
+            $this->info('ArtisanServiceProvider namespace has been updated.');
+        } else {
+            $this->comment('ArtisanServiceProvider namespace has not yet been updated.');
+            $file = str_replace(
+                'namespace Illuminate\Foundation\Providers;',
+                'namespace App\Providers;',
+                $file
+            );
+            file_put_contents($artisan_provider_summon, $file);
+        }
+
+        $this->line(''); // spacer
+
     }
 }
