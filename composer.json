@@ -11,5 +11,10 @@
     "require": {},
     "require-dev": {
         "laravel/framework": "^5.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Quezler\\Laravel_Summon\\": "src/"
+        }
     }
 }
