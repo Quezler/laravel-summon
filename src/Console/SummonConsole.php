@@ -44,25 +44,19 @@ class SummonConsole extends Command
         $console_provider_summon = base_path('app/Providers/')            . 'ConsoleSupportServiceProvider.php';
         $console_provider_vendor = base_path('vendor/laravel/framework/') . 'src/Illuminate/Foundation/Providers/ConsoleSupportServiceProvider.php';
 
-        if (file_exists($console_provider_summon)) {
-            $this->info('ConsoleSupportServiceProvider found in app/Providers.');
-        } else {
-            $this->comment('ConsoleSupportServiceProvider not found in app/Providers.');
-
-            File::copy($console_provider_vendor, $console_provider_summon);
-        }
+        $this->replicate(
+            $console_provider_summon,
+            $console_provider_vendor
+        );
 
         // possible locations of ArtisanServiceProvider
         $artisan_provider_summon = base_path('app/Providers/')            . 'ArtisanServiceProvider.php';
         $artisan_provider_vendor = base_path('vendor/laravel/framework/') . 'src/Illuminate/Foundation/Providers/ArtisanServiceProvider.php';
 
-        if (file_exists($artisan_provider_summon)) {
-            $this->info('ArtisanServiceProvider found in app/Providers.');
-        } else {
-            $this->comment('ArtisanServiceProvider not found in app/Providers.');
-
-            File::copy($artisan_provider_vendor, $artisan_provider_summon);
-        }
+        $this->replicate(
+            $artisan_provider_summon,
+            $artisan_provider_vendor
+        );
 
         $this->line(''); // spacer
 
@@ -134,7 +128,26 @@ class SummonConsole extends Command
 
     private function summonableCommands($file) {
         preg_match_all("/use (.*Command);/", file_get_contents($file), $array);
-        dd($array[1]);
+        $foo = $this->choice('Which to summon?', $array[1]);
+        dd($foo);
+    }
+
+    private function replicate($to, $fro) {
+        if (file_exists($to)) {
+            $this->info(   sprintf('Found        %s', $to));
+        } else {
+            $this->comment(sprintf('Not found    %s', $to));
+            $this->comment(sprintf('Copying from %s', $fro));
+
+            File::copy($fro, $to);
+
+            $this->replicate($to, $fro);
+        }
+
+    }
+
+    private function patch($filePath, $search, $replace) {
+
     }
 
 }
