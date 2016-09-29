@@ -43,6 +43,60 @@ class SummonConsole extends Command
      */
     public function handle()
     {
+        $this->prepare();
+//        $this->question("if you see this, you're good to go! (っ◕‿◕)っ");
+//        $this->line(''); // spacer
+
+//        return $this->summonableCommands($artisan_provider_summon);
+    }
+
+    public function section($string) {
+        $this->getOutput()->writeln("<bg=yellow;options=bold>$string</>");
+    }
+
+    private function copy($filename, $vendor, $summon) {
+
+        if (file_exists($summon . $filename)) {
+            $this->info("$filename summoned.");
+
+        } else {
+            $this->comment("$filename is being summoned...");
+
+            File::copy($vendor.$filename, $summon.$filename);
+        }
+
+    }
+
+    private function summonableCommands($file) {
+        preg_match_all("/use (.*Command);/", file_get_contents($file), $array);
+        $foo = $this->choice('Which to summon?', $array[1]);
+        dd($foo);
+    }
+
+    private function patch($filePath, $search, $replace) {
+
+        $file = file_get_contents($filePath);
+
+        if (Str::contains($file, $search)) {
+            $this->comment("$filePath is being patched...");
+
+            $file = str_replace(
+                $search,
+                $replace,
+                $file
+            );
+
+            file_put_contents($filePath, $file);
+        } else {
+            $this->info("$filePath patched.");
+        }
+
+    }
+
+    /**
+     * Prepare environment for the relocation of a console command.
+     */
+    private function prepare() {
         $this->line(''); // spacer
         $this->section('Copying ServiceProviders from vendor...');
 
@@ -98,69 +152,5 @@ class SummonConsole extends Command
         );
 
         $this->line(''); // spacer
-//        $this->question("if you see this, you're good to go! (っ◕‿◕)っ");
-//        $this->line(''); // spacer
-
-//        return $this->summonableCommands($artisan_provider_summon);
     }
-
-    public function section($string) {
-        $this->getOutput()->writeln("<bg=yellow;options=bold>$string</>");
-    }
-
-    private function copy($filename, $vendor, $summon) {
-
-        if (file_exists($summon . $filename)) {
-            $this->info("$filename summoned.");
-
-        } else {
-            $this->comment("$filename is being summoned...");
-
-            File::copy($vendor.$filename, $summon.$filename);
-        }
-
-    }
-
-    private function summonableCommands($file) {
-        preg_match_all("/use (.*Command);/", file_get_contents($file), $array);
-        $foo = $this->choice('Which to summon?', $array[1]);
-        dd($foo);
-    }
-
-    private function patch($filePath, $search, $replace) {
-
-        $file = file_get_contents($filePath);
-
-        if (Str::contains($file, $search)) {
-            $this->comment("$filePath is being patched...");
-
-            $file = str_replace(
-                $search,
-                $replace,
-                $file
-            );
-
-            file_put_contents($filePath, $file);
-        } else {
-            $this->info("$filePath patched.");
-        }
-
-    }
-
-}
-
-/**
- * @deprecated
- */
-function wrap($color, $string) {
-    $resolve = [
-        'green' => 'info',
-        'yellow' => 'comment',
-    ];
-
-    return sprintf('<%s>%s</%s>',
-        $resolve[$color],
-        $string,
-        $resolve[$color]
-    );
 }
