@@ -55,20 +55,23 @@ class SummonConsole extends Command
             'app/Providers/'
         );
 
-        $this->line(''); // spacer
+        $summonPath = [
+            'ConsoleSupportServiceProvider.php' => 'app/Providers/',
+            'ArtisanServiceProvider.php'        => 'app/Providers/',
+        ];
 
-        return;
+        $this->line(''); // spacer
 
         // update namespace of summoned ConsoleSupportServiceProvider
         $this->patch(
-            $console_provider_summon,
+            $summonPath['ConsoleSupportServiceProvider.php'] . 'ConsoleSupportServiceProvider.php',
             'namespace Illuminate\Foundation\Providers;',
             'namespace App\Providers;'
         );
 
         // update namespace of summoned ArtisanServiceProvider
         $this->patch(
-            $artisan_provider_summon,
+            $summonPath['ArtisanServiceProvider.php'] . 'ArtisanServiceProvider.php',
             'namespace Illuminate\Foundation\Providers;',
             'namespace App\Providers;'
         );
@@ -77,7 +80,7 @@ class SummonConsole extends Command
 
         // update ArtisanServiceProvider pointer in summoned ConsoleSupportServiceProvider
         $this->patch(
-            $console_provider_summon,
+            $summonPath['ConsoleSupportServiceProvider.php'] . 'ConsoleSupportServiceProvider.php',
             'Illuminate\Foundation\Providers\ArtisanServiceProvider',
             'App\Providers\ArtisanServiceProvider'
         );
