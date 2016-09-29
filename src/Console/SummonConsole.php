@@ -111,7 +111,7 @@ class SummonConsole extends Command
     private function copy($filename, $vendor, $summon) {
 
         if (file_exists($summon . $filename)) {
-            $this->info("$filename has already been summoned.");
+            $this->info("$filename summoned.");
 
         } else {
             $this->comment("$filename is being summoned...");
@@ -142,7 +142,7 @@ class SummonConsole extends Command
 
             file_put_contents($filePath, $file);
         } else {
-            $this->info("$filePath has already been patched.");
+            $this->info("$filePath patched.");
         }
 
     }
