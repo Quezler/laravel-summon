@@ -45,6 +45,9 @@ class SummonConsole extends Command
         $this->info("$to_summon ey? a fine choice!");
         $this->prepare();
 
+        $this->line(''); // spacer
+        $this->section('Summoning your selected console command...');
+
         $linux = str_replace('\\', '/', $to_summon);
 
         $explode = explode('/', $linux);
@@ -64,6 +67,13 @@ class SummonConsole extends Command
             "app/Console/Commands/$filename.php",
             "namespace $namespace;",
             'namespace App\Console\Commands;'
+        );
+
+        // update namespace of summoned console command
+        $this->patch(
+            'app/Providers/ArtisanServiceProvider.php',
+            "use $to_summon;",
+            "use App\\Console\\Commands\\$filename;"
         );
     }
 
