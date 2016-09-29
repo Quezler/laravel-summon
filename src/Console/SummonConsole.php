@@ -135,34 +135,16 @@ class SummonConsole extends Command
         dd($foo);
     }
 
-    /**
-     * @deprecated
-     *
-     * @param $to
-     * @param $fro
-     */
-    private function replicate($to, $fro) {
-        if (file_exists($to)) {
-            $this->info(   sprintf('Found        %s', $to));
-        } else {
-            $this->comment(sprintf('Not found    %s', $to));
-            $this->comment(sprintf('Copying from %s', $fro));
-
-            File::copy($fro, $to);
-
-            $this->replicate($to, $fro);
-        }
-
-    }
-
     private function patch($filePath, $search, $replace) {
+
+        $table = new Table($this->getOutput());
+
+        $rows = [];
+
         $file = file_get_contents($filePath);
 
-        if (Str::contains($file, $replace)) {
-            $this->info("$filePath contains [$replace]");
-        } else {
-            $this->comment("$filePath contains [$search]");
-            $this->comment("Updating file...");
+        if (Str::contains($file, $search)) {
+            $rows[] = [wrap('yellow', $search), wrap('green', $replace)];
 
             $file = str_replace(
                 $search,
@@ -171,8 +153,26 @@ class SummonConsole extends Command
             );
 
             file_put_contents($filePath, $file);
-            $this->patch($filePath, $search, $replace);
+
+            $rows[] = new TableSeparator();
+            $rows[] = [new TableCell(wrap('green', 'Updating lines'), ['colspan' => 2])];
+        } else {
+            $rows[] = [wrap('green', $replace), wrap('green', $replace)];
+
+
+            $rows[] = new TableSeparator();
+            $rows[] = [new TableCell(wrap('yellow', 'No action required'), ['colspan' => 2])];
         }
+
+        $table
+            ->setHeaders([
+                new TableCell($filePath, ['colspan' => 2])
+            ])
+            ->setRows($rows);
+
+        $table->render();
+
+//        }
 
     }
 
