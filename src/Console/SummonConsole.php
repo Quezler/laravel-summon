@@ -43,44 +43,21 @@ class SummonConsole extends Command
      */
     public function handle()
     {
-        $table = new Table($this->getOutput());
-        $table
-            ->setHeaders([
-                new TableCell('ConsoleSupportServiceProvider', ['colspan' => 2])
-            ])
-            ->setRows(array(
-                ['app/Providers/',
-                    wrap('green', 'ConsoleSupportServiceProvider.php')],
-                ['vendor/laravel/framework/src/Illuminate/Foundation/Providers/',
-                    wrap('yellow', 'ConsoleSupportServiceProvider.php')],
-                new TableSeparator(),
-                [
-                    new TableCell(wrap('green', 'File coppied'), ['colspan' => 2])
-                ]
-            ))
-        ;
-        $table->render();
-
-        return;
-        // possible locations of ConsoleSupportServiceProvider
-        $console_provider_summon = base_path('app/Providers/')            . 'ConsoleSupportServiceProvider.php';
-        $console_provider_vendor = base_path('vendor/laravel/framework/') . 'src/Illuminate/Foundation/Providers/ConsoleSupportServiceProvider.php';
-
-        $this->replicate(
-            $console_provider_summon,
-            $console_provider_vendor
+        $this->copy(
+            'ConsoleSupportServiceProvider.php',
+            'vendor/laravel/framework/src/Illuminate/Foundation/Providers/',
+            'app/Providers/'
         );
 
-        // possible locations of ArtisanServiceProvider
-        $artisan_provider_summon = base_path('app/Providers/')            . 'ArtisanServiceProvider.php';
-        $artisan_provider_vendor = base_path('vendor/laravel/framework/') . 'src/Illuminate/Foundation/Providers/ArtisanServiceProvider.php';
-
-        $this->replicate(
-            $artisan_provider_summon,
-            $artisan_provider_vendor
+        $this->copy(
+            'ArtisanServiceProvider.php',
+            'vendor/laravel/framework/src/Illuminate/Foundation/Providers/',
+            'app/Providers/'
         );
 
         $this->line(''); // spacer
+
+        return;
 
         // update namespace of summoned ConsoleSupportServiceProvider
         $this->patch(
@@ -119,12 +96,48 @@ class SummonConsole extends Command
 //        return $this->summonableCommands($artisan_provider_summon);
     }
 
+    private function copy($filename, $vendor, $summon) {
+        $table = new Table($this->getOutput());
+
+        $rows = [];
+
+        $rows[] = [$vendor, wrap('green', $filename)];
+
+        if (file_exists($summon . $filename)) {
+            $rows[] = [$summon, wrap('green', $filename)];
+
+            $rows[] = new TableSeparator();
+            $rows[] = [new TableCell(wrap('yellow', 'No action required'), ['colspan' => 2])];
+        } else {
+            $rows[] = [$summon, wrap('yellow', $filename)];
+
+            File::copy($vendor.$filename, $summon.$filename);
+
+            $rows[] = new TableSeparator();
+            $rows[] = [new TableCell(wrap('green', 'File coppied'), ['colspan' => 2])];
+        }
+
+        $table
+            ->setHeaders([
+                new TableCell($filename, ['colspan' => 2])
+            ])
+            ->setRows($rows);
+
+        $table->render();
+    }
+
     private function summonableCommands($file) {
         preg_match_all("/use (.*Command);/", file_get_contents($file), $array);
         $foo = $this->choice('Which to summon?', $array[1]);
         dd($foo);
     }
 
+    /**
+     * @deprecated
+     *
+     * @param $to
+     * @param $fro
+     */
     private function replicate($to, $fro) {
         if (file_exists($to)) {
             $this->info(   sprintf('Found        %s', $to));
