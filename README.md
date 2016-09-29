@@ -9,5 +9,4 @@ Add `\Quezler\Laravel_Summon\SummonServiceProvider::class,` to config/app.php un
 
 ### Commands
 
-
 `php artisan summon:console` Summon a laravel 5 console command
