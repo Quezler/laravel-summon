@@ -6,9 +6,6 @@ namespace Quezler\Laravel_Summon\Console;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Helper\TableCell;
-use Symfony\Component\Console\Helper\TableSeparator;
 
 class SummonConsole extends Command
 {
@@ -43,11 +40,31 @@ class SummonConsole extends Command
      */
     public function handle()
     {
-        $this->prepare();
-//        $this->question("if you see this, you're good to go! (っ◕‿◕)っ");
-//        $this->line(''); // spacer
+        $to_summon = $this->choice('Which to summon?', $this->summonableCommands());
 
-//        return $this->summonableCommands($artisan_provider_summon);
+        $this->info("$to_summon ey? a fine choice!");
+        $this->prepare();
+
+        $linux = str_replace('\\', '/', $to_summon);
+
+        $explode = explode('/', $linux);
+
+        $filename = array_pop($explode);
+        $path = implode('/', $explode);
+
+        $this->copy(
+            $filename . '.php',
+            "vendor/laravel/framework/src/$path/",
+            'app/Console/Commands/'
+        );
+
+        $namespace = str_replace('/', '\\', $path);
+
+        $this->patch(
+            "app/Console/Commands/$filename.php",
+            "namespace $namespace;",
+            'namespace App\Console\Commands;'
+        );
     }
 
     public function section($string) {
@@ -67,10 +84,10 @@ class SummonConsole extends Command
 
     }
 
-    private function summonableCommands($file) {
+    private function summonableCommands() {
+        $file = 'vendor/laravel/framework/src/Illuminate/Foundation/Providers/ArtisanServiceProvider.php';
         preg_match_all("/use (.*Command);/", file_get_contents($file), $array);
-        $foo = $this->choice('Which to summon?', $array[1]);
-        dd($foo);
+        return $array[1];
     }
 
     private function patch($filePath, $search, $replace) {
