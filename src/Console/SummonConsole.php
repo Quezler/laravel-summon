@@ -117,8 +117,6 @@ class SummonConsole extends Command
             $this->comment("$filename is being summoned...");
 
             File::copy($vendor.$filename, $summon.$filename);
-
-            $this->copy($filename, $vendor, $summon);
         }
 
     }
@@ -143,7 +141,6 @@ class SummonConsole extends Command
             );
 
             file_put_contents($filePath, $file);
-            $this->patch($filePath, $search, $replace);
         } else {
             $this->info("$filePath has already been patched.");
         }
