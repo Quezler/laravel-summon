@@ -43,6 +43,9 @@ class SummonConsole extends Command
      */
     public function handle()
     {
+        $this->line(''); // spacer
+        $this->question('Copying ServiceProviders from vendor...');
+
         $this->copy(
             'ConsoleSupportServiceProvider.php',
             'vendor/laravel/framework/src/Illuminate/Foundation/Providers/',
@@ -61,6 +64,7 @@ class SummonConsole extends Command
         ];
 
         $this->line(''); // spacer
+        $this->question('Updating namespaces...');
 
         // update namespace of summoned ConsoleSupportServiceProvider
         $this->patch(
@@ -77,6 +81,7 @@ class SummonConsole extends Command
         );
 
         $this->line(''); // spacer
+        $this->question('Linking files...');
 
         // update ArtisanServiceProvider pointer in summoned ConsoleSupportServiceProvider
         $this->patch(
@@ -93,40 +98,25 @@ class SummonConsole extends Command
         );
 
         $this->line(''); // spacer
-        $this->question("if you see this, you're good to go! (っ◕‿◕)っ");
-        $this->line(''); // spacer
+//        $this->question("if you see this, you're good to go! (っ◕‿◕)っ");
+//        $this->line(''); // spacer
 
 //        return $this->summonableCommands($artisan_provider_summon);
     }
 
     private function copy($filename, $vendor, $summon) {
-        $table = new Table($this->getOutput());
-
-        $rows = [];
-
-        $rows[] = [$vendor, wrap('green', $filename)];
 
         if (file_exists($summon . $filename)) {
-            $rows[] = [$summon, wrap('green', $filename)];
+            $this->info("$filename summoned.");
 
-            $rows[] = new TableSeparator();
-            $rows[] = [new TableCell(wrap('yellow', 'No action required'), ['colspan' => 2])];
         } else {
-            $rows[] = [$summon, wrap('yellow', $filename)];
+            $this->comment("$filename is being summoned...");
 
             File::copy($vendor.$filename, $summon.$filename);
 
-            $rows[] = new TableSeparator();
-            $rows[] = [new TableCell(wrap('green', 'File coppied'), ['colspan' => 2])];
+            $this->copy($filename, $vendor, $summon);
         }
 
-        $table
-            ->setHeaders([
-                new TableCell($filename, ['colspan' => 2])
-            ])
-            ->setRows($rows);
-
-        $table->render();
     }
 
     private function summonableCommands($file) {
@@ -137,14 +127,10 @@ class SummonConsole extends Command
 
     private function patch($filePath, $search, $replace) {
 
-        $table = new Table($this->getOutput());
-
-        $rows = [];
-
         $file = file_get_contents($filePath);
 
         if (Str::contains($file, $search)) {
-            $rows[] = [wrap('yellow', $search), wrap('green', $replace)];
+            $this->comment("$filePath is being patched...");
 
             $file = str_replace(
                 $search,
@@ -153,32 +139,18 @@ class SummonConsole extends Command
             );
 
             file_put_contents($filePath, $file);
-
-            $rows[] = new TableSeparator();
-            $rows[] = [new TableCell(wrap('green', 'Updating lines'), ['colspan' => 2])];
+            $this->patch($filePath, $search, $replace);
         } else {
-            $rows[] = [wrap('green', $replace), wrap('green', $replace)];
-
-
-            $rows[] = new TableSeparator();
-            $rows[] = [new TableCell(wrap('yellow', 'No action required'), ['colspan' => 2])];
+            $this->info("$filePath patched.");
         }
-
-        $table
-            ->setHeaders([
-                new TableCell($filePath, ['colspan' => 2])
-            ])
-            ->setRows($rows);
-
-        $table->render();
-
-//        }
 
     }
 
 }
 
-
+/**
+ * @deprecated
+ */
 function wrap($color, $string) {
     $resolve = [
         'green' => 'info',
