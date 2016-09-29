@@ -44,7 +44,7 @@ class SummonConsole extends Command
     public function handle()
     {
         $this->line(''); // spacer
-        $this->question('Copying ServiceProviders from vendor...');
+        $this->section('Copying ServiceProviders from vendor...');
 
         $this->copy(
             'ConsoleSupportServiceProvider.php',
@@ -64,7 +64,7 @@ class SummonConsole extends Command
         ];
 
         $this->line(''); // spacer
-        $this->question('Updating namespaces...');
+        $this->section('Updating namespaces...');
 
         // update namespace of summoned ConsoleSupportServiceProvider
         $this->patch(
@@ -81,7 +81,7 @@ class SummonConsole extends Command
         );
 
         $this->line(''); // spacer
-        $this->question('Linking files...');
+        $this->section('Linking files...');
 
         // update ArtisanServiceProvider pointer in summoned ConsoleSupportServiceProvider
         $this->patch(
@@ -102,6 +102,10 @@ class SummonConsole extends Command
 //        $this->line(''); // spacer
 
 //        return $this->summonableCommands($artisan_provider_summon);
+    }
+
+    public function section($string) {
+        $this->getOutput()->writeln("<bg=yellow;options=bold>$string</>");
     }
 
     private function copy($filename, $vendor, $summon) {
