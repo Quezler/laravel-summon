@@ -6,6 +6,9 @@ namespace Quezler\Laravel_Summon\Console;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableCell;
+use Symfony\Component\Console\Helper\TableSeparator;
 
 class SummonConsole extends Command
 {
@@ -40,6 +43,25 @@ class SummonConsole extends Command
      */
     public function handle()
     {
+        $table = new Table($this->getOutput());
+        $table
+            ->setHeaders([
+                new TableCell('ConsoleSupportServiceProvider', ['colspan' => 2])
+            ])
+            ->setRows(array(
+                ['app/Providers/',
+                    wrap('green', 'ConsoleSupportServiceProvider.php')],
+                ['vendor/laravel/framework/src/Illuminate/Foundation/Providers/',
+                    wrap('yellow', 'ConsoleSupportServiceProvider.php')],
+                new TableSeparator(),
+                [
+                    new TableCell(wrap('green', 'File coppied'), ['colspan' => 2])
+                ]
+            ))
+        ;
+        $table->render();
+
+        return;
         // possible locations of ConsoleSupportServiceProvider
         $console_provider_summon = base_path('app/Providers/')            . 'ConsoleSupportServiceProvider.php';
         $console_provider_vendor = base_path('vendor/laravel/framework/') . 'src/Illuminate/Foundation/Providers/ConsoleSupportServiceProvider.php';
@@ -94,7 +116,7 @@ class SummonConsole extends Command
         $this->question("if you see this, you're good to go! (っ◕‿◕)っ");
         $this->line(''); // spacer
 
-        return $this->summonableCommands($artisan_provider_summon);
+//        return $this->summonableCommands($artisan_provider_summon);
     }
 
     private function summonableCommands($file) {
@@ -138,4 +160,18 @@ class SummonConsole extends Command
 
     }
 
+}
+
+
+function wrap($color, $string) {
+    $resolve = [
+        'green' => 'info',
+        'yellow' => 'comment',
+    ];
+
+    return sprintf('<%s>%s</%s>',
+        $resolve[$color],
+        $string,
+        $resolve[$color]
+    );
 }
